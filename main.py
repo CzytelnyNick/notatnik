@@ -2,61 +2,85 @@ from PyQt6.QtWidgets import (
     QApplication,
     QToolBar,
     QMainWindow,
-    QWidget,
-    QMessageBox,
-    QPushButton,
-    QLabel,
-    QFileDialog, QVBoxLayout, QFontDialog, QFontComboBox
+    QFontComboBox,
+    QTextEdit, QMessageBox, QSpinBox
 )
-from PyQt6 import QtCore, uic, QtSvg, QtGui
-from PyQt6.QtGui import QPixmap, QAction, QIcon, QFont, QFontDatabase
+from PyQt6.QtGui import QAction, QIcon
 import sys
-import subprocess
 
 
-class Login(QMainWindow):
+
+class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
 
-        toolbar = QToolBar()
-        # font = QFontDialog.getFont()
-        # print(font)
+        self.toolbar = QToolBar()
         newFile = QAction(QIcon("images//file.png"), "New File", self)
-        openFile = QAction(QIcon("images//open.png"), "New File", self)
-        undo = QAction(QIcon("images//undo.png"), "New File", self)
-        redo = QAction(QIcon("images//redo.png"), "New File", self)
-        cut = QAction(QIcon("images//cut.png"), "New File", self)
-        copy = QAction(QIcon("images//copy.png"), "New File", self)
-        paste = QAction(QIcon("images//paste.png"), "New File", self)
-        newFile = QAction(QIcon("images//file.png"), "New File", self)
-        newFile = QAction(QIcon("images//file.png"), "New File", self)
-        toolbar.addAction(newFile)
-        toolbar.addAction(openFile)
-        toolbar.addAction(undo)
-        toolbar.addAction(redo)
-        toolbar.addAction(cut)
-        toolbar.addAction(copy)
-        toolbar.addAction(paste)
-        toolbar.addSeparator()
-        test = QFontComboBox()
-        
-        toolbar.addWidget(test)
+        openFile = QAction(QIcon("images//open.png"), "Open File", self)
+        undo = QAction(QIcon("images//undo.png"), "Undo", self)
+        redo = QAction(QIcon("images//redo.png"), "Redo", self)
+        cut = QAction(QIcon("images//cut.png"), "Cut", self)
+        copy = QAction(QIcon("images//copy.png"), "Copy", self)
+        paste = QAction(QIcon("images//paste.png"), "Paste", self)
+        italic = QAction(QIcon("images//i.png"), "Italic", self)
+        bold = QAction(QIcon("images//b.png"), "Bold", self)
+        underline = QAction(QIcon("images//u.png"), "Underline", self)
+        save = QAction(QIcon("images//save.png"), "Save", self)
+        self.toolbar.addAction(newFile)
+        self.toolbar.addAction(openFile)
+        self.toolbar.addAction(save)
+        self.toolbar.addAction(undo)
+        self.toolbar.addAction(redo)
+        self.toolbar.addAction(cut)
+        self.toolbar.addAction(copy)
+        self.toolbar.addAction(paste)
+        self.toolbar.addSeparator()
+        self.fontStyle = QFontComboBox()
+        self.fontSize = QSpinBox()
+        self.fontSize.setValue(30)
+        self.fontSize.setFixedWidth(40)
+
+        self.toolbar.addWidget(self.fontStyle)
+        self.toolbar.addWidget(self.fontSize)
+        self.toolbar.addSeparator()
+        self.toolbar.addAction(bold)
+        self.toolbar.addAction(italic)
+        self.toolbar.addAction(underline)
+        self.textArea = QTextEdit()
         # toolbar.addAction(newFile)
+        self.setCentralWidget(self.textArea)
+
         # toolbar.addAction(newFile)
-        self.addToolBar(toolbar)
+        self.addToolBar(self.toolbar)
         self.showMaximized()
 
+        newFile.triggered.connect(self.newFileFunc)
+        self.fontStyle.activated.connect(self.setFontSize())
 
         self.show()
 
-    def openFileExplorer(self):
-        global dialog
-        dialog = QFileDialog.getOpenFileName(directory="C:\\Users\\4TP2\\Desktop\\python\\designer\\galeria")
-        print(dialog[0])
-        dialog = dialog[0]
+    def clearFunc(self):
+        self.textArea.setText("")
+    def newFileFunc(self):
+        # print("AA")
 
 
+        msgBox = QMessageBox()
+        msgBox.setText("Czy napewno chcesz usunąć całą zawartość")
+
+        msgBox.setIcon(QMessageBox.Icon.Warning)
+        msgBox.setStandardButtons(
+                               QMessageBox.StandardButton.Ok |
+                               QMessageBox.StandardButton.Cancel)
+
+        msgBox.setDefaultButton(QMessageBox.StandardButton.Cancel)
+        ret = msgBox.exec()
+        if ret == 1024:
+            self.clearFunc()
+    def setFontSize(self):
+        # self.textArea.setFont()
+        print(self.fontStyle.currentFont())
 app = QApplication(sys.argv)
-logowanie = Login()
+logowanie = MainWindow()
 sys.exit(app.exec())
