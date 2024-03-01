@@ -3,10 +3,11 @@ from PyQt6.QtWidgets import (
     QToolBar,
     QMainWindow,
     QFontComboBox,
-    QTextEdit, QMessageBox, QSpinBox, QFileDialog, 
+    QTextEdit, QMessageBox, QSpinBox, QFileDialog,
+    QComboBox 
 )
 from PyQt6.QtGui import QAction, QIcon, QFont, QTextCharFormat
-import sys
+import sys, keyboard
 
 
 
@@ -27,12 +28,10 @@ class MainWindow(QMainWindow):
         bold = QAction(QIcon("images//b.png"), "Bold", self)
         underline = QAction(QIcon("images//u.png"), "Underline", self)
         save = QAction(QIcon("images//save.png"), "Save", self)
+        justify = QComboBox()
         self.toolbar.addAction(newFile)
         self.toolbar.addAction(openFile)
         self.toolbar.addAction(save)
-        self.toolbar.addAction(undo)
-        self.toolbar.addAction(redo)
-        self.toolbar.addAction(cut)
         self.toolbar.addAction(copy)
         self.toolbar.addAction(paste)
         self.toolbar.addSeparator()
@@ -52,16 +51,22 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.textArea)
         self.boldCheck = 0
         self.italicCheck = 0
+        self.underlineCheck = 0
         # toolbar.addAction(newFile)
         self.addToolBar(self.toolbar)
         self.showMaximized()
-        
+        self.textArea.setFontPointSize(30)
         newFile.triggered.connect(self.newFileFunc)
         openFile.triggered.connect(self.openFileExplorer)
         # self.fontStyle.activated.connect(self.setFontSize())
         save.triggered.connect(self.saveFile)
         bold.triggered.connect(self.setBold)
         italic.triggered.connect(self.setItalic)
+        underline.triggered.connect(self.setUnderline)
+        copy.triggered.connect(self.copyText)
+        paste.triggered.connect(self.pasteText)
+        self.fontSize.textChanged.connect(self.changeFontSize)
+        self.fontStyle.activated.connect(self.changeFontStyle)
         self.show()
 
     def clearFunc(self):
@@ -82,9 +87,9 @@ class MainWindow(QMainWindow):
         ret = msgBox.exec()
         if ret == 1024:
             self.clearFunc()
-    def setFontSize(self):
-        # self.textArea.setFont()
-        print(self.fontStyle.currentFont())
+    
+        # # self.textArea.setFont()
+        # print(self.fontStyle.currentFont())
     def openFileExplorer(self):
         dialog = QFileDialog.getOpenFileName(filter="HTML (*.html)")
         print(dialog)  # Wydrukowanie ścieżki do pliku
@@ -94,7 +99,14 @@ class MainWindow(QMainWindow):
                 self.textArea.setText(content)
     def saveFile(self):
         text = self.textArea.toHtml()
-        print(text)
+        dialog = QFileDialog.getSaveFileName(filter="HTML (*.html)")
+        print(dialog)
+        with open(f"{dialog[0]}", 'w') as file:
+            file.write(text)
+    
+
+        
+        print(dialog)
     def getSelectedText(self):
         selected_text = self.textArea.textCursor().selectedText()
         if selected_text:
@@ -127,8 +139,33 @@ class MainWindow(QMainWindow):
             text_format.setFontItalic(False)
             text.mergeCharFormat(text_format)
             self.italicCheck = 0
-        
-        
+    def setUnderline(self):
+        if self.underlineCheck == 0:
+            text = self.textArea.textCursor()
+            text_format = QTextCharFormat()
+            text_format.setFontUnderline(True)
+            text.mergeCharFormat(text_format)
+            self.underlineCheck = 1
+        elif self.underlineCheck == 1:
+            text = self.textArea.textCursor()
+            text_format = QTextCharFormat()
+            text_format.setFontUnderline(False)
+            text.mergeCharFormat(text_format)
+            self.underlineCheck = 0
+    def copyText(self):
+        keyboard.press_and_release('ctrl+c')
+    def pasteText(self):
+        keyboard.press_and_release('ctrl+v')
+    def changeFontSize(self):
+        text = self.textArea.textCursor()
+        text_format = QTextCharFormat()
+        text_format.setFontPointSize(float(self.fontSize.text()))
+        text.mergeCharFormat(text_format)
+    def changeFontStyle(self):
+        text = self.textArea.textCursor()
+        text_format = QTextCharFormat()
+        text_format.setFont(self.fontStyle.currentFont())
+        text.mergeCharFormat(text_format)
         
 app = QApplication(sys.argv)
 logowanie = MainWindow()
