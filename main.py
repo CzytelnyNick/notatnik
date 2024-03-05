@@ -178,8 +178,16 @@ class MainWindow(QMainWindow):
         print(index)
         text = self.textArea.textCursor()
         text_format = QTextCharFormat()
-        text_format.setVerticalAlignment()
-        text.mergeCharFormat(text_format)
+        if index == 0:
+            self.textArea.setAlignment(Qt.AlignmentFlag.AlignLeft)
+            
+        if index == 1:
+            self.textArea.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            index = 0
+        if index == 2:
+            index=0   
+            self.textArea.setAlignment(Qt.AlignmentFlag.AlignRight)
+        
 app = QApplication(sys.argv)
 logowanie = MainWindow()
 sys.exit(app.exec())
